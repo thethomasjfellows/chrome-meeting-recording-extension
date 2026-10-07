@@ -128,7 +128,12 @@ All three commands compile TypeScript via `ts-loader`, copy HTML shells, styles,
 ## Using the extension
 
 1. Open a Google Meet at `https://meet.google.com/...`
-2. (For transcripts) turn on **Captions** in the Google Meet UI.
+2. This personal build automatically enables **Captions** when recording starts.
+   It checks Meet's caption control and watches for activation. If activation
+   cannot be confirmed after several seconds, a warning appears inside Meet;
+   turn on CC manually. Audio/video recording continues. The check also covers
+   keyboard starts and rejoining an active recording. A transcript still depends
+   on Meet producing captions; the recording files alone do not prove capture.
 3. Click the extension icon in the Chrome toolbar (pin it from the puzzle-piece menu for quick access).
 
 ### Transcript

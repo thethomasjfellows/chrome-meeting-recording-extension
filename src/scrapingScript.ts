@@ -28,6 +28,7 @@
  */
 
 import { GoogleMeetAdapter } from './content/GoogleMeetAdapter';
+import { AutoCaptions } from './content/AutoCaptions';
 import type { MeetingProviderAdapter } from './content/MeetingProviderAdapter';
 import { trySendRuntimeMessage } from './platform/chrome/runtime';
 import { isPopupToContentMessage, type TranscriptCaptureState } from './shared/protocol';
@@ -115,6 +116,7 @@ class TranscriptCollector {
    * recorded.
    */
   private capturingRunId: number | null = null;
+  private readonly autoCaptions = new AutoCaptions(() => this.areCaptionsActive());
   private readonly buffer = new CaptionBuffer({
     onCommit: (utterance) => this.pushUtterances([utterance]),
   });
@@ -158,6 +160,10 @@ class TranscriptCollector {
    * re-sent utterance costs nothing.
    */
   private setCapturing(runId: number | null) {
+    if (runId !== this.capturingRunId) {
+      if (runId != null && window.location.hostname === 'meet.google.com') this.autoCaptions.start();
+      else this.autoCaptions.stop();
+    }
     const changed = this.capturingRunId !== runId;
     this.capturingRunId = runId;
     if (runId != null && changed) this.pushUtterances(this.buffer.getUtterances());
@@ -356,6 +362,7 @@ class TranscriptCollector {
   }
 
   stop() {
+    this.autoCaptions.stop();
     this.reset();
     this.captionObserver?.disconnect(); this.regionObserver?.disconnect(); this.regionParentObserver?.disconnect();
     this.captionObserver = null; this.regionObserver = null; this.regionParentObserver = null;
